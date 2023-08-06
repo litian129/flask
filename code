@@ -1,0 +1,102 @@
+function isAllHabitable(grid) {
+  const directions = [[-1, 0], [1, 0], [0, -1], [0, 1]];
+  const row = grid.length;
+  const column = grid[0].length;
+  let days = 0;
+
+  // 检查是否所有的可改造区都已经变成宜居区
+  function checkAllHabitable() {
+    for (let i = 0; i < row; i++) {
+      for (let j = 0; j < column; j++) {
+        if (grid[i][j] === 'NO') {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  // 执行宜居改造
+  function transform() {
+    const queue = [];
+    let count = 0;
+
+    // 将所有已经完成宜居改造的区域加入队列
+    for (let i = 0; i < row; i++) {
+      for (let j = 0; j < column; j++) {
+        if (grid[i][j] === 'YES') {
+          queue.push([i, j]);
+        }
+      }
+    }
+
+    // 使用广度优先搜索进行宜居改造
+    while (queue.length > 0) {
+      const size = queue.length;
+
+      for (let i = 0; i < size; i++) {
+        const [x, y] = queue.shift();
+
+        // 向四个方向扩散改造
+        for (const [dx, dy] of directions) {
+          const newX = x + dx;
+          const newY = y + dy;
+
+          // 检查是否越界或已经改造过
+          if (
+            newX >= 0 &&
+            newX < row &&
+            newY >= 0 &&
+            newY < column &&
+            grid[newX][newY] === 'NO'
+          ) {
+            grid[newX][newY] = 'YES';
+            queue.push([newX, newY]);
+            count++;
+          }
+        }
+      }
+
+      // 如果没有新的区域进行改造，则退出循环
+      if (count === 0) {
+        break;
+      } else {
+        days++;
+        count = 0;
+      }
+    }
+  }
+
+  transform();
+
+  return checkAllHabitable() ? days : -1;
+}
+
+// 测试样例
+const grid1 = [
+  ['YES', 'YES', 'NO'],
+  ['NO', 'NO', 'NO'],
+  ['NA', 'NO', 'YES']
+];
+console.log(isAllHabitable(grid1)); // 输出 2
+
+const grid2 = [
+  ['YES', 'NO', 'NO', 'NO'],
+  ['NO', 'NO', 'NO', 'NO'],
+  ['NO', 'NO', 'NO', 'NO'],
+  ['NO', 'NO', 'NO', 'NO']
+];
+console.log(isAllHabitable(grid2)); // 输出 6
+
+const grid3 = [
+  ['NO', 'NA']
+];
+console.log(isAllHabitable(grid3)); // 输出 -1
+
+const grid4 = [
+  ['YES', 'NO', 'NO', 'YES'],
+  ['NO', 'NO', 'YES', 'NO'],
+  ['NO', 'YES', 'NA', 'NA'],
+  ['YES', 'NO', 'NA', 'NO']
+];
+console.log(isAllHabitable(grid4)); // 输出 -1
