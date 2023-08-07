@@ -140,3 +140,100 @@ function removeDigits(num1, n) {
 
 // 测试样例
 console.log(removeDigits('2615371', 4)); // 输出: '131'
+
+
+服务失效判断
+function findNormalServices(dependencies, faults) {
+  const dependencyMap = new Map();
+  const faultSet = new Set(faults);
+  const result = [];
+
+  for (const dependency of dependencies) {
+    const [service, dependencyService] = dependency.split('-');
+    if (!dependencyMap.has(service)) {
+      dependencyMap.set(service, []);
+    }
+    dependencyMap.get(service).push(dependencyService);
+  }
+
+  function dfs(service) {
+    if (faultSet.has(service)) {
+      return;
+    }
+
+    result.push(service);
+    if (dependencyMap.has(service)) {
+      for (const dependencyService of dependencyMap.get(service)) {
+        dfs(dependencyService);
+      }
+    }
+  }
+
+  for (const service of dependencyMap.keys()) {
+    dfs(service);
+  }
+
+  result.sort((a, b) => dependencies.indexOf(a + '-' + b));
+
+  return result.length > 0 ? result.join(',') : ',';
+}
+
+// 测试样例
+const dependencies = ['a1-a2', 'a5-a6', 'a2-a3'];
+const faults = ['a5', 'a2'];
+console.log(findNormalServices(dependencies, faults));  // 输出 "a6,a3"
+
+
+方法二
+function findNormalServices(dependencies, failures) {
+  // 构建依赖关系图
+  const graph = {};
+  for (let dep of dependencies) {
+    const [serviceA, serviceB] = dep.split("-");
+    if (!graph[serviceA]) graph[serviceA] = [];
+    graph[serviceA].push(serviceB);
+  }
+
+  // 深度优先搜索遍历所有服务，判断是否在故障列表中
+  const visited = {};
+  const dfs = (service) => {
+    if (visited[service]) return;
+    visited[service] = true;
+    if (failures.includes(service)) return;
+    if (!graph[service]) return;
+    for (let dependency of graph[service]) {
+      dfs(dependency);
+    }
+  };
+
+  // 遍历所有服务
+  for (let service in graph) {
+    dfs(service);
+  }
+
+  // 按照依赖关系列表中的次序排序
+  const result = [];
+  for (let dep of dependencies) {
+    const [serviceA, serviceB] = dep.split("-");
+    if (visited[serviceA] && !result.includes(serviceA)) {
+      result.push(serviceA);
+    }
+    if (visited[serviceB] && !result.includes(serviceB)) {
+      result.push(serviceB);
+    }
+  }
+
+  // 返回结果，用逗号分隔
+  return result.join(",");
+}
+// 测试示例1
+const dependencies1 = ["a1-a2", "a5-a6", "a2-a3"];
+const failures1 = ["a5", "a2"];
+console.log(findNormalServices(dependencies1, failures1)); // 输出: "a6,a3"
+
+// 测试示例2
+const dependencies2 = ["a1-a2"];
+const failures2 = ["a2"];
+console.log(findNormalServices(dependencies2, failures2)); // 输出: ","
+
+
