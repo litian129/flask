@@ -100,3 +100,43 @@ const grid4 = [
   ['YES', 'NO', 'NA', 'NO']
 ];
 console.log(isAllHabitable(grid4)); // 输出 -1
+
+
+
+
+
+function removeDigits(num1, n) {
+  if (n >= num1.length) {
+    return '0';
+  }
+  
+  const stack = [];
+  for (let i = 0; i < num1.length; i++) {
+    const digit = num1[i];
+    while (stack.length > 0 && stack[stack.length - 1] > digit && n > 0) {
+      stack.pop();
+      n--;
+    }
+    stack.push(digit);
+  }
+  
+  while (n > 0) {
+    stack.pop();
+    n--;
+  }
+  
+  let result = '';
+  let leadingZero = true;
+  for (let i = 0; i < stack.length; i++) {
+    if (leadingZero && stack[i] === '0') {
+      continue;
+    }
+    leadingZero = false;
+    result += stack[i];
+  }
+  
+  return result || '0';
+}
+
+// 测试样例
+console.log(removeDigits('2615371', 4)); // 输出: '131'
