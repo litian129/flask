@@ -237,3 +237,72 @@ const failures2 = ["a2"];
 console.log(findNormalServices(dependencies2, failures2)); // 输出: ","
 
 
+
+找单词
+function findWord(grid, word) {
+  const rows = grid.length;
+  const cols = grid[0].length;
+  const visited = Array.from({ length: rows }, () => Array(cols).fill(false));
+  let result = "";
+
+  function dfs(row, col, index) {
+    // 越界或已访问过，返回false
+    if (row < 0 || row >= rows || col < 0 || col >= cols || visited[row][col]) {
+      return false;
+    }
+
+    // 当前字符不匹配，返回false
+    if (grid[row][col] !== word[index]) {
+      return false;
+    }
+
+    // 当前字符匹配，且是最后一个字符，返回true
+    if (index === word.length - 1) {
+      return true;
+    }
+
+    // 标记当前单元格为已访问
+    visited[row][col] = true;
+
+    // 递归搜索相邻单元格
+    if (
+      dfs(row - 1, col, index + 1) ||
+      dfs(row + 1, col, index + 1) ||
+      dfs(row, col - 1, index + 1) ||
+      dfs(row, col + 1, index + 1)
+    ) {
+      // 如果存在匹配的路径，将当前位置添加到结果中
+      result += `${row},${col},`;
+      return true;
+    }
+
+    // 回溯，将当前单元格标记为未访问
+    visited[row][col] = false;
+
+    return false;
+  }
+
+  // 遍历二维数组，找到匹配的起始位置
+  for (let i = 0; i < rows; i++) {
+    for (let j = 0; j < cols; j++) {
+      if (dfs(i, j, 0)) {
+        return result.slice(0, -1); // 去掉最后一个逗号
+      }
+    }
+  }
+
+  return "N";
+}
+
+// 读取输入
+const N = parseInt(readline());
+const grid = [];
+for (let i = 0; i < N; i++) {
+  grid.push(readline().split(","));
+}
+const word = readline();
+
+// 调用函数并输出结果
+const result = findWord(grid, word);
+print(result);
+
