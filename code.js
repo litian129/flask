@@ -306,3 +306,61 @@ const word = readline();
 const result = findWord(grid, word);
 print(result);
 
+
+
+
+
+整理扑克牌
+function sortPoker(numbers) {
+  // 步骤1：对扑克牌进行分组
+  const counts = {};
+  numbers.forEach(num => {
+    counts[num] = (counts[num] || 0) + 1;
+  });
+
+  const bombs = [];
+  const fullHouses = [];
+  const triples = [];
+  const pairs = [];
+  const singles = [];
+
+  Object.keys(counts).forEach(num => {
+    const count = counts[num];
+    if (count >= 4) {
+      bombs.push(num);
+    } else if (count === 3) {
+      triples.push(num);
+    } else if (count === 2) {
+      pairs.push(num);
+    } else {
+      singles.push(num);
+    }
+  });
+
+  // 步骤2：对组合牌进行排序
+  bombs.sort((a, b) => b - a);
+  triples.sort((a, b) => b - a);
+  pairs.sort((a, b) => b - a);
+  singles.sort((a, b) => b - a);
+
+  // 如果存在“葫芦”，将其拆分为“三张”和“对子”
+  if (triples.length >= 2) {
+    fullHouses.push(triples[0]);
+    fullHouses.push(triples[1]);
+    triples.splice(0, 2);
+  }
+
+  // 步骤3：对可能的组合方案进行排序并合并
+  const combinations = [bombs, fullHouses, triples, pairs, singles];
+  combinations.forEach(combo => {
+    combo.sort((a, b) => b - a);
+  });
+
+  const sortedNumbers = [].concat(...combinations);
+
+  return sortedNumbers;
+}
+
+// 测试示例
+console.log(sortPoker([1, 3, 3, 3, 2, 1, 5])); // 输出：[3, 3, 3, 1, 1, 5, 2]
+console.log(sortPoker([4, 4, 2, 1, 2, 1, 3, 3, 3, 4])); // 输出：[4, 4, 4, 3, 3, 2, 2, 1, 1, 3]
