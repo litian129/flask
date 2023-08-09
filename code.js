@@ -307,6 +307,31 @@ const result = findWord(grid, word);
 print(result);
 
 
+找出通过车辆最多颜色
+function maxColorCount(colors, windowSize) {
+  let maxCount = 0;
+  let countMap = new Map();
+  let i = 0;
+  for (let j = 0; j < colors.length; j++) {
+    countMap.set(colors[j], (countMap.get(colors[j]) || 0) + 1);
+    if (j - i + 1 > windowSize) {
+      countMap.set(colors[i], countMap.get(colors[i]) - 1);
+      if (countMap.get(colors[i]) === 0) {
+        countMap.delete(colors[i]);
+      }
+      i++;
+    }
+    maxCount = Math.max(maxCount, Math.max(...countMap.values()));
+  }
+  return maxCount;
+}
+
+// 测试示例
+console.log(maxColorCount([0, 1, 1, 2], 3)); // 输出 2
+console.log(maxColorCount([0, 1, 2, 1], 2)); // 输出 1
+
+
+
 
 
 
