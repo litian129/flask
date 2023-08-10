@@ -336,56 +336,60 @@ console.log(maxColorCount([0, 1, 2, 1], 2)); // 输出 1
 
 
 整理扑克牌
-function sortPoker(numbers) {
-  // 步骤1：对扑克牌进行分组
-  const counts = {};
-  numbers.forEach(num => {
-    counts[num] = (counts[num] || 0) + 1;
-  });
-
-  const bombs = [];
-  const fullHouses = [];
-  const triples = [];
-  const pairs = [];
-  const singles = [];
-
-  Object.keys(counts).forEach(num => {
-    const count = counts[num];
-    if (count >= 4) {
-      bombs.push(num);
-    } else if (count === 3) {
-      triples.push(num);
-    } else if (count === 2) {
-      pairs.push(num);
+function sortPoker(nums) {
+  // 步骤1：对扑克牌进行分组，形成组合牌
+  let groups = new Map();
+  for (let num of nums) {
+    if (groups.has(num)) {
+      groups.set(num, groups.get(num) + 1);
     } else {
-      singles.push(num);
+      groups.set(num, 1);
+    }
+  }
+
+  // 步骤2：对组合牌进行排序
+  let sortedGroups = Array.from(groups).sort((a, b) => {
+    let countA = a[1];
+    let countB = b[1];
+    if (countA === countB) {
+      return b[0] - a[0];
+    } else {
+      return countB - countA;
     }
   });
 
-  // 步骤2：对组合牌进行排序
-  bombs.sort((a, b) => b - a);
-  triples.sort((a, b) => b - a);
-  pairs.sort((a, b) => b - a);
-  singles.sort((a, b) => b - a);
+  // 步骤3：当存在多个可能组合方案时，进行比较排序
+  let finalResult = [];
+  let tempResult = [];
+  let maxResult = [];
+  for (let i = 0; i < sortedGroups.length; i++) {
+    let currentNum = sortedGroups[i][0];
+    let currentCount = sortedGroups[i][1];
+    if (tempResult.length === 0 || currentCount === tempResult[0][1]) {
+      tempResult.push(sortedGroups[i]);
+    } else {
+      tempResult.sort((a, b) => b[0] - a[0]);
+      maxResult = maxResult.concat(tempResult);
+      tempResult = [];
+      tempResult.push(sortedGroups[i]);
+    }
+  }
+  tempResult.sort((a, b) => b[0] - a[0]);
+  maxResult = maxResult.concat(tempResult);
 
-  // 如果存在“葫芦”，将其拆分为“三张”和“对子”
-  if (triples.length >= 2) {
-    fullHouses.push(triples[0]);
-    fullHouses.push(triples[1]);
-    triples.splice(0, 2);
+  // 将结果转换为扑克牌数字列表
+  for (let group of maxResult) {
+    let num = group[0];
+    let count = group[1];
+    for (let i = 0; i < count; i++) {
+      finalResult.push(num);
+    }
   }
 
-  // 步骤3：对可能的组合方案进行排序并合并
-  const combinations = [bombs, fullHouses, triples, pairs, singles];
-  combinations.forEach(combo => {
-    combo.sort((a, b) => b - a);
-  });
-
-  const sortedNumbers = [].concat(...combinations);
-
-  return sortedNumbers;
+  return finalResult;
 }
 
 // 测试示例
-console.log(sortPoker([1, 3, 3, 3, 2, 1, 5])); // 输出：[3, 3, 3, 1, 1, 5, 2]
-console.log(sortPoker([4, 4, 2, 1, 2, 1, 3, 3, 3, 4])); // 输出：[4, 4, 4, 3, 3, 2, 2, 1, 1, 3]
+console.log(sortPoker([1, 3, 3, 3, 2, 1, 5])); // [3, 3, 3, 1, 1, 5, 2]
+console.log(sortPoker([4, 4, 2, 1, 2, 1, 3, 3, 3, 4])); // [4, 4, 4, 3, 3, 2, 2, 1, 1, 3]
+
